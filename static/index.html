@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta charset="UTF-8">
+<title>Calculadora Científica Go</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+    background: #e0e0e0;
+}
+#calculator {
+    background: #222;
+    padding: 100px;
+    border-radius: 50px;
+    color: #fff;
+    width: 420px;
+}
+#display {
+    background: #000;
+    color: white;
+    font-size: 2em;
+    padding: 20px;
+    text-align: right;
+    border-radius: 10px;
+    margin-bottom: 40px;
+    height: 50px;
+    overflow-x: auto;
+}
+#buttons {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+}
+button {
+    padding: 15px;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+    background: #555;
+    color: #fff;
+}
+button:hover { background: #777; }
+#deg-label {
+    grid-column: span 6;
+    text-align: right;
+    margin-bottom: 5px;
+}
+button.calc-btn {
+    grid-column: span 6;
+    background: #FF5733;
+}
+</style>
+</head>
+<body>
+<div id="calculator">
+    <div id="display">0</div>
+    <div id="deg-label">
+        <label><input type="checkbox" id="deg" checked /> Graus</label>
+    </div>
+    <div id="buttons">
+        <!-- Funções científicas -->
+        <button onclick="press('sin(') " style="background-color: #87CEFA"">sin</button>
+        <button onclick="press('cos(') " style="background-color: #87CEFA"">cos</button>
+        <button onclick="press('tan(') " style="background-color: #87CEFA"">tan</button>
+        <button onclick="press('ln(')  " style="background-color: #5ab3a7"">ln</button>
+        <button onclick="press('log(') " style="background-color: #5ab3a7"">log</button>
+        <button onclick="press('sqrt(') " style="background-color: #5ab3a7"">√</button>
+
+        <button onclick="press('asin(') " style="background-color: #aab640"">asin</button>
+        <button onclick="press('acos(') " style="background-color: #aab640"">acos</button>
+        <button onclick="press('atan(') " style="background-color: #aab640"">atan</button>
+        <button onclick="press('^') " style="background-color: #b640b6"">x^y</button>
+        <button onclick="press('pi') " style="background-color: #b640b6"">π</button>
+        <button onclick="press('e') " style="background-color: #b640b6"">e</button>
+
+        <!-- Números e operadores -->
+        <button onclick="press('7') " style="background-color: #B19CD9"">7</button>
+        <button onclick="press('8') " style="background-color: #B19CD9"">8</button>
+        <button onclick="press('9')" style="background-color: #B19CD9"">9</button>
+          <button onclick="backspace() " style="background-color:rgb(207, 63, 63)""><i class="fas fa-backspace"></i></button>
+        <button onclick="press('(') " style="background-color: #923a5c"">(</button>
+        <button onclick="press(')') " style="background-color: #923a5c"">)</button>
+
+        <button onclick="press('4') " style="background-color: #B19CD9"">4</button>
+        <button onclick="press('5') " style="background-color: #B19CD9"">5</button>
+        <button onclick="press('6') " style="background-color: #B19CD9"">6</button>
+        <button onclick="press('*') " style="background-color: rgb(74, 167, 74)"">*</button>
+         <button onclick="press('/') " style="background-color: rgb(74, 167, 74)"">/</button>
+        <button onclick="press('exp(') " style="background-color: #35629e"">exp</button>
+
+        <button onclick="press('1') " style="background-color: #B19CD9" ">1</button>
+        <button onclick="press('2') " style="background-color: #B19CD9"">2</button>
+        <button onclick="press('3') " style="background-color: #B19CD9"">3</button>
+        <button onclick="press('-') " style="background-color:  rgb(74, 167, 74)"">-</button>
+        <button onclick="press('abs(') " style="background-color: #9140b6"">abs</button>
+        <button onclick="press('fact(') " style="background-color: #9140b6"">n!</button>
+
+        <button onclick="press('0') " style="background-color: #B19CD9"">0</button>
+        <button onclick="press('.') " style="background-color: #91a733"">.</button>
+        <button onclick="press('%') " style="background-color: #91a733"">%</button>
+        <button onclick="press('+') " style="background-color: rgb(74, 167, 74)">+</button>
+        <button onclick="press('floor(') " style="background-color: #9140b6"">floor</button>
+        <button onclick="press('ceil(') " style="background-color: #9140b6"">ceil</button>
+
+        <!-- Botão calcular -->
+        <button class="calc-btn" onclick="calculate()">=</button>
+    </div>
+</div>
+
+<script>
+let currentExpr = "";
+let newCalc = false; // Flag para iniciar nova operação
+
+function press(value) {
+    if (newCalc) {
+        currentExpr = "";
+        newCalc = false;
+    }
+    currentExpr += value;
+    updateDisplay();
+}
+
+function clearDisplay() {
+    currentExpr = "";
+    updateDisplay();
+}
+
+function updateDisplay() {
+    document.getElementById("display").innerText = currentExpr || "0";
+}
+
+function backspace() {
+    if (newCalc) {
+        currentExpr = "";
+        newCalc = false;
+    } else {
+        currentExpr = currentExpr.slice(0, -1); // remove o último caractere
+    }
+    updateDisplay();
+}
+
+
+async function calculate() {
+    if (!currentExpr) return;
+    const deg = document.getElementById("deg").checked;
+
+    try {
+        const resp = await fetch("/calc", {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body: JSON.stringify({expr: currentExpr, deg})
+        });
+
+        const data = await resp.json();
+        if (data.error) {
+            currentExpr = "Erro";
+        } else {
+            currentExpr = data.result.toString();
+        }
+        updateDisplay();
+        newCalc = true; // próxima operação limpa visor
+    } catch (err) {
+        currentExpr = "Erro";
+        updateDisplay();
+        newCalc = true;
+    }
+}
+</script>
+</body>
+</html>
