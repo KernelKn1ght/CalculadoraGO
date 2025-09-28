@@ -10,12 +10,7 @@ Uma calculadora científica web desenvolvida em **Go** com interface interativa 
 - Funções científicas: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `ln`, `log`, `exp`, `sqrt`  
 - Operações avançadas: `^` (potência), `%` (porcentagem), `abs`, `floor`, `ceil`, `n!` (fatorial)  
 - Visor interativo que atualiza apenas com cliques nos botões  
-- Suporte a **graus e radianos** para funções trigonométricas  
-- Design inspirado em calculadoras científicas físicas  
-- Interface colorida:  
-  - Números em azul clarinho  
-  - Funções em roxo clarinho  
-  - Operadores em cinza  
+- Suporte a **graus e radianos** para funções trigonométricas 
 
 ---
 
